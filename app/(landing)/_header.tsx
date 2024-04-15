@@ -16,10 +16,10 @@ export default function Header() {
           className="text-primary border-primary border-2 hover:text-primary hover:opacity-90"
           asChild
         >
-          <Link href="#">Login</Link>
+          <Link href="/login">Login</Link>
         </Button>
         <Button size="lg" asChild>
-          <Link href="#">Get Trello for free</Link>
+          <Link href="/register">Get Trello for free</Link>
         </Button>
       </nav>
     </header>
