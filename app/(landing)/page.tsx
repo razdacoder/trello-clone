@@ -26,7 +26,7 @@ export default function Home() {
             accomplish it all with Trello
           </p>
           <Button size="lg" asChild>
-            <Link href="#">Get Started</Link>
+            <Link href="#">Get Trello for free</Link>
           </Button>
         </div>
       </main>
