@@ -1,8 +1,14 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import RegisterForm from "./register-form";
+import { redirect } from "next/navigation";
+import { validateRequest } from "@/lib/auth";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const { user } = await validateRequest();
+  if (user) {
+    return redirect("/dashboard");
+  }
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">

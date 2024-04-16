@@ -1,6 +1,11 @@
 "use server";
 
-import { registerSchema } from "@/types/schema";
+import {
+  loginSchema,
+  registerSchema,
+  resetPasswordConfirmSchema,
+  resetPasswordSchema,
+} from "@/types/schema";
 import { z } from "zod";
 import * as argon2 from "argon2";
 import { generateId } from "lucia";
@@ -10,6 +15,7 @@ import * as jose from "jose";
 import { and, eq } from "drizzle-orm";
 import { lucia } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { User } from "lucide-react";
 
 export type FormState = {
   success?: boolean;
@@ -125,6 +131,129 @@ export const verifyEmail = async (token: string): Promise<FormState> => {
     return {
       error: true,
       message: "Invalid token, Please try again.",
+    };
+  }
+};
+
+export const loginUser = async (
+  values: z.infer<typeof loginSchema>
+): Promise<FormState> => {
+  try {
+    const parsed = loginSchema.safeParse(values);
+    if (!parsed.success) {
+      throw new Error("Invalid form data");
+    }
+
+    const user = await db.query.UserTable.findFirst({
+      where: eq(UserTable.email, values.email),
+    });
+    if (!user) {
+      throw new Error("Invalid email or password");
+    }
+
+    const hashedPassword = await argon2.verify(
+      user.hashedPassword!,
+      values.password
+    );
+
+    if (!hashedPassword) {
+      throw new Error("Invalid email or password");
+    }
+
+    if (!user.isEmailVerified) {
+      throw new Error("Email not verified!!");
+    }
+
+    await createSessionAction(user.id);
+
+    return {
+      success: true,
+      message: "Login successful!!",
+    };
+  } catch (e: any) {
+    console.log(e.message);
+    return {
+      error: true,
+      message: e.message,
+    };
+  }
+};
+
+export const resetPassword = async (
+  values: z.infer<typeof resetPasswordSchema>
+): Promise<FormState> => {
+  try {
+    const parsed = resetPasswordSchema.safeParse(values);
+    if (!parsed.success) {
+      throw new Error("Invalid form data");
+    }
+
+    const user = await db.query.UserTable.findFirst({
+      where: eq(UserTable.email, values.email),
+    });
+    if (!user) {
+      throw new Error("User with email address does not exists");
+    }
+
+    const alg = "HS256";
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
+
+    const token = await new jose.SignJWT({
+      userId: user.id,
+    })
+      .setProtectedHeader({ alg })
+      .setIssuedAt()
+      .setIssuer("trello_clone")
+      .setAudience("trello_clone")
+      .setExpirationTime("10m")
+      .sign(secret);
+    const url = `${process.env.NEXT_PUBLIC_URL}/reset-password/?token=${token}`;
+    console.log(url);
+
+    return {
+      success: true,
+      message: "Password reset link has been sent to your email",
+    };
+  } catch (e: any) {
+    console.log(e.message);
+    return {
+      error: true,
+      message: e.message,
+    };
+  }
+};
+
+export const resetPasswordConfirm = async (
+  values: z.infer<typeof resetPasswordConfirmSchema>,
+  token: string
+): Promise<FormState> => {
+  try {
+    const parsed = resetPasswordConfirmSchema.safeParse(values);
+    if (!parsed.success) {
+      throw new Error("Invalid form data");
+    }
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY!);
+    const { payload } = await jose.jwtVerify(token, secret, {
+      issuer: "trello_clone", // issuer
+      audience: "trello_clone", // audience
+    });
+
+    const hashedPassword = await argon2.hash(values.password);
+    await db
+      .update(UserTable)
+      .set({ hashedPassword })
+      .where(eq(UserTable.id, payload.userId as string));
+
+    return {
+      success: true,
+      message: "Password reset successfully",
+    };
+  } catch (e: any) {
+    console.log(e.message);
+    return {
+      error: true,
+      message: "Invalid or expired token",
     };
   }
 };
