@@ -9,6 +9,7 @@ export default async function DashboardPage() {
   if (!user) {
     return redirect("/login");
   }
+
   return (
     <div className="flex justify-center my-6">
       <div className="max-w-7xl">
@@ -18,16 +19,7 @@ export default async function DashboardPage() {
           <BoardCard />
           <BoardCard />
           <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
+
           <CreateBoardCard />
         </div>
       </div>

@@ -24,8 +24,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
+import { useQuery } from "@tanstack/react-query";
+import { getUserWorkspaces } from "@/actions/workspace.action";
+import CreateWorkspaceModal from "./CreateWorkspaceModal";
+import { useState } from "react";
 
 export default function Sidebar() {
+  const { data: workspaces, isLoading } = useQuery({
+    queryKey: ["getAllWorkspaces"],
+    queryFn: () => getUserWorkspaces(),
+  });
+
+  const [open, setOpen] = useState(false);
   return (
     <div className="hidden border-r bg-muted/40 md:block">
       <div className="flex h-full max-h-screen flex-col gap-2">
@@ -48,46 +58,61 @@ export default function Sidebar() {
               Boards
             </Link>
             <Separator />
-            <h4 className="text-muted-foreground px-3 py-2 mt-2">Workspaces</h4>
+            <div className="flex justify-between items-center">
+              <h4 className="text-muted-foreground px-3 py-2 mt-2">
+                Workspaces
+              </h4>
+              <CreateWorkspaceModal
+                open={open}
+                setOpen={(value) => setOpen(value)}
+              />
+            </div>
+
             <Accordion
               type="single"
               collapsible
               className="w-full px-3 py-2 text-muted-foreground"
             >
-              <AccordionItem value="item-1" className="border-b-0">
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex items-center gap-x-2">
-                    <Workflow className="size-4" />
-                    Trello Workspace
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <Link
-                    href="#"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                  >
-                    <CircuitBoard className="h-4 w-4" />
-                    Boards
-                  </Link>
-                  <Button
-                    variant="link"
-                    className="flex w-full items-center justify-between rounded-lg hover:no-underline px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                  >
-                    <div className="flex gap-3 items-center">
-                      <Users className="h-4 w-4" />
-                      Members
+              {workspaces?.map((workspace) => (
+                <AccordionItem
+                  key={workspace.id}
+                  value={`item-${workspace.id}`}
+                  className="border-b-0"
+                >
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-x-2">
+                      <Workflow className="size-4" />
+                      {workspace.name}
                     </div>
-                    <Plus className="size-4" />
-                  </Button>
-                  <Link
-                    href="#"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Link>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <Link
+                      href="#"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <CircuitBoard className="h-4 w-4" />
+                      Boards
+                    </Link>
+                    <Button
+                      variant="link"
+                      className="flex w-full items-center justify-between rounded-lg hover:no-underline px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <div className="flex gap-3 items-center">
+                        <Users className="h-4 w-4" />
+                        Members
+                      </div>
+                      <Plus className="size-4" />
+                    </Button>
+                    <Link
+                      href="#"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
           </nav>
         </div>

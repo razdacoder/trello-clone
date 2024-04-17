@@ -33,3 +33,7 @@ export const resetPasswordConfirmSchema = z
     message: "Passwords do not match",
     path: ["confirm_password"],
   });
+
+export const workspaceSchema = z.object({
+  name: z.string().trim().min(1, { message: "Name is required" }),
+});
