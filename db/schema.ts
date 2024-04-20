@@ -6,6 +6,7 @@ import {
   pgTable,
   uuid,
   boolean,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const UserTable = pgTable("user", {
@@ -63,9 +64,31 @@ export const WorkSpaceMembersTable = pgTable(
   })
 );
 
+export const visibilityEnum = pgEnum("visibility", ["Private", "Public"]);
+
+export const BoardTable = pgTable("boards", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => WorkSpaceTable.id),
+  visibility: visibilityEnum("visibility").notNull(),
+  imageUrl: text("image_url").notNull(),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at"),
+});
+
 export const usersRelations = relations(UserTable, ({ many }) => ({
   workspaces: many(WorkSpaceTable),
   workspaceMembers: many(WorkSpaceMembersTable),
+}));
+
+export const boardRelations = relations(BoardTable, ({ one }) => ({
+  workspace: one(WorkSpaceTable, {
+    fields: [BoardTable.workspaceId],
+    references: [WorkSpaceTable.id],
+  }),
 }));
 
 export const workSpaceRelations = relations(
@@ -76,6 +99,7 @@ export const workSpaceRelations = relations(
       references: [UserTable.id],
     }),
     members: many(WorkSpaceMembersTable),
+    boards: many(BoardTable),
   })
 );
 

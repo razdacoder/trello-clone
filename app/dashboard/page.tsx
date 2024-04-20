@@ -11,17 +11,18 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex justify-center my-6">
-      <div className="max-w-7xl">
-        <h3 className="text-2xl font-semibold my-5">All Boards</h3>
-        <div className="flex items-center gap-4 flex-wrap">
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
-          <BoardCard />
+    <div className="w-[80%] mx-auto">
+      <h3 className="text-2xl font-semibold my-5">All Boards</h3>
+      <div className="flex items-center gap-4 flex-wrap">
+        <BoardCard />
+        <BoardCard />
+        <BoardCard />
+        <BoardCard />
+        <BoardCard />
+        <BoardCard />
+        <BoardCard />
 
-          <CreateBoardCard />
-        </div>
+        <CreateBoardCard />
       </div>
     </div>
   );

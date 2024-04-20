@@ -9,8 +9,7 @@ export default function BoardCard() {
           src="/wallpaper.jpg"
           alt="Board Image"
           fill
-          className="absolute -z-10 rounded-md group-hover:opacity-80 transition-all"
-          objectFit="cover"
+          className="absolute -z-10 rounded-md group-hover:opacity-80 transition-all object-cover"
         />
         <h4 className="font-semibold text-sm truncate">Hass Capital</h4>
       </div>

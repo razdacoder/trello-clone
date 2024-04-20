@@ -28,8 +28,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserWorkspaces } from "@/actions/workspace.action";
 import CreateWorkspaceModal from "./CreateWorkspaceModal";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { useParams, usePathname } from "next/navigation";
+import { Skeleton } from "./ui/skeleton";
 
 export default function Sidebar() {
+  const { id } = useParams();
+  const pathname = usePathname();
   const { data: workspaces, isLoading } = useQuery({
     queryKey: ["getAllWorkspaces"],
     queryFn: () => getUserWorkspaces(),
@@ -68,6 +73,15 @@ export default function Sidebar() {
               />
             </div>
 
+            {isLoading && (
+              <div className="space-y-4">
+                <Skeleton className="w-full h-[30px] rounded-md" />
+                <Skeleton className="w-full h-[30px] rounded-md" />
+                <Skeleton className="w-full h-[30px] rounded-md" />
+                <Skeleton className="w-full h-[30px] rounded-md" />
+              </div>
+            )}
+
             <Accordion
               type="single"
               collapsible
@@ -87,8 +101,13 @@ export default function Sidebar() {
                   </AccordionTrigger>
                   <AccordionContent>
                     <Link
-                      href="#"
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                      href={`/dashboard/w/${workspace.id}/boards`}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                        id == workspace.id &&
+                          pathname.endsWith("/boards") &&
+                          "text-primary"
+                      )}
                     >
                       <CircuitBoard className="h-4 w-4" />
                       Boards

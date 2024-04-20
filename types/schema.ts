@@ -37,3 +37,10 @@ export const resetPasswordConfirmSchema = z
 export const workspaceSchema = z.object({
   name: z.string().trim().min(1, { message: "Name is required" }),
 });
+
+export const boardSchema = z.object({
+  name: z.string().trim().min(1, { message: "Name is required" }),
+  workspaceId: z.string(),
+  visibility: z.enum(["Private", "Public"]),
+  imageUrl: z.string().min(1, { message: "Background is required" }),
+});

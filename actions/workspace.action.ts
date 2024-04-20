@@ -53,3 +53,15 @@ export const createUserWorkspace = async (
     };
   }
 };
+
+export const getWorksSpaceById = async (id: string) => {
+  const { user } = await validateRequest();
+  if (!user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const workspace = await db.query.WorkSpaceTable.findFirst({
+    where: eq(WorkSpaceTable.id, id),
+  });
+  return workspace;
+};
